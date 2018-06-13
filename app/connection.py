@@ -1,4 +1,4 @@
-"""Interface to PastPortGPS, the web-based location services for the barge
+"""Interface to PastPortGPS, the web-based Client services for the barge
 
 Returns:
     tuple -- coordinates of the glass barge
@@ -6,6 +6,7 @@ Returns:
 
 import logging
 import time
+from base64 import b64encode
 from logging.handlers import SMTPHandler
 
 import requests
@@ -51,6 +52,11 @@ def requests_retry_session(session=None):
 
 def safe_session():
     s = requests.Session()
-    s.auth = (WEB['UID'],WEB['PWD'])
-    req = requests_retry_session(session=s).get(WEB['URL'], verify=False)
+    usernamepassword = b64encode("{}:{}".format( WEB['UID'],WEB['PWD'])).decode("ascii")
+    headers = {
+        'Authorization' : "Basic %s" % usernamepassword,
+        'Cache-Control': "no-cache",
+        'Postman-Token': "e4cca5bc-11fb-493f-a169-c82d31b78c5b"
+        }
+    req = requests_retry_session(session=s).get(WEB['URL'], headers=headers, verify=False)
     return req
