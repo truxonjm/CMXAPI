@@ -52,9 +52,9 @@ def requests_retry_session(session=None):
 
 def safe_session():
     s = requests.Session()
-    usernamepassword = b64encode("{}:{}".format( WEB['UID'],WEB['PWD'])).decode("ascii")
+    #usernamepassword = b64encode(b"{}:{}".format(WEB['UID'],WEB['PWD'])).decode("ascii")
     headers = {
-        'Authorization' : "Basic %s" % usernamepassword,
+        'Authorization' : "Basic QVBJVEVTVDphcGl0ZXN0aW5n",
         'Cache-Control': "no-cache",
         'Postman-Token': "e4cca5bc-11fb-493f-a169-c82d31b78c5b"
         }
