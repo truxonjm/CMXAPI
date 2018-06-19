@@ -2,14 +2,15 @@
 from flask import Flask
 from flask_restful import Api
 
-from app.resources import ClientLast, ClientList, Now
+from app.resources import ClientLast, ClientList, ClientCount, Clientele
 from app.config import Config
 
 APP = Flask(__name__)
 APP.config.from_object(Config)
 API = Api(APP)
 
-API.add_resource(ClientLast, '/api/Clients/last')
-API.add_resource(ClientList, '/api/Clients')
-API.add_resource(Now, '/api/now')
+API.add_resource(ClientLast, '/api/v1/Client/last')
+API.add_resource(ClientList, '/api/v1/Client/all')
+API.add_resource(ClientCount, '/api/v1/Client/count')
+API.add_resource(Clientele, '/api/v1/Client/fromDay')
     

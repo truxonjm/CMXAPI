@@ -27,6 +27,7 @@ class Config(object):
     CONNECTION=WEB['CONNECTION']
     DB= __vars['DB']
     ERR=__vars['ERR']
+    API=__vars['API']
 
     __quote = quote_plus('DRIVER='+DB['DRIVER']+
             ';SERVER='+DB['SERVER']+';DATABASE='+DB['DATABASE']+
@@ -37,6 +38,3 @@ class Config(object):
         logging.basicConfig(
             level=logging.DEBUG,
             format='[%(levelname)s] %(threadName)s: %(message)s')
-        
-
-        

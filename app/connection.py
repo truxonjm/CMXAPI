@@ -1,7 +1,7 @@
 """Interface to PastPortGPS, the web-based Client services for the barge
 
 Returns:
-    tuple -- coordinates of the glass barge
+    {Response} - Connection to the CMX API
 """
 
 import logging
@@ -17,7 +17,6 @@ from urllib3.util.retry import Retry
 
 from app.config import Config
 
-WEB=Config.WEB
 CONN=Config.CONNECTION
 ERR=Config.ERR
 
@@ -50,13 +49,15 @@ def requests_retry_session(session=None):
     session.mount('https://', adapter)
     return session
 
-def safe_session():
+def safe_session(url, uid, pwd):
     s = requests.Session()
-    #usernamepassword = b64encode(b"{}:{}".format(WEB['UID'],WEB['PWD'])).decode("ascii")
+    userPassString = "{}:{}".format(uid,pwd)
+    usernamePassword = b64encode(userPassString.encode()).decode("ascii")
     headers = {
-        'Authorization' : "Basic QVBJVEVTVDphcGl0ZXN0aW5n",
+        'Authorization' : 'Basic %s' % usernamePassword,
         'Cache-Control': "no-cache",
         'Postman-Token': "e4cca5bc-11fb-493f-a169-c82d31b78c5b"
         }
-    req = requests_retry_session(session=s).get(WEB['URL'], headers=headers, verify=False)
+    
+    req = requests_retry_session(session=s).get(url, headers=headers, verify=False)
     return req
