@@ -9,8 +9,8 @@ APP = Flask(__name__)
 APP.config.from_object(Config)
 API = Api(APP)
 
-API.add_resource(ClientLast, '/api/v1/Client/last')
-API.add_resource(ClientList, '/api/v1/Client/all')
-API.add_resource(ClientCount, '/api/v1/Client/count')
-API.add_resource(Clientele, '/api/v1/Client/fromDay')
+API.add_resource(ClientLast, '/api/v2/Client/last')
+API.add_resource(ClientList, '/api/v2/Client/all')
+API.add_resource(ClientCount, '/api/v2/Client/count')
+API.add_resource(Clientele, '/api/v2/Client/fromDay')
     
