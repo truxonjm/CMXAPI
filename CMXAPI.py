@@ -1,9 +1,6 @@
-"""Runable for API"""
+"""API Runable"""
 
-from app import APP
-from app.scheduler import Scheduler
+from api import app, sched
 
-sched = Scheduler()
 sched.safe_start()
-
-APP.run()
+app.run()
