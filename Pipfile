@@ -12,7 +12,6 @@ sqlalchemy = "*"
 flask-sqlalchemy = "*"
 python-dateutil = "*"
 flask-cors = "*"
-marshmallow = "*"
 
 [dev-packages]
 rope = "*"

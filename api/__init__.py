@@ -10,7 +10,7 @@ from flask_restful import Api
 from api.cmx import StepIterator
 from api.config import Config
 from api.connection import SafeSession
-from api.resources import ClientResource, RequestLogResource, CMXResource, TestResource
+from api.endpoints import ClientResource, RequestLogResource, CMXResource, TestResource
 from api.scheduler import Scheduler
 from flask_cors import CORS
 
