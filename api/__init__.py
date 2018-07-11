@@ -6,14 +6,15 @@ from logging.handlers import SMTPHandler
 from flask import Flask
 from flask.logging import default_handler
 from flask_restful import Api
-
-from api.cmx import StepIterator
-from api.config import Config
-from api.connection import SafeSession
-from api.endpoints import ClientResource, RequestLogResource, CMXResource, TestResource
-from api.scheduler import Scheduler
 from flask_cors import CORS
 
+from .generic.connection import SafeRequest
+from .generic.scheduler import Scheduler
+
+from .cmx import StepIterator
+from .config import Config
+from .endpoints import (ClientResource, CMXResource, RequestLogResource,
+                        TestResource)
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*", 'methods': 'GET', 'supports_credentials': True}})
@@ -30,7 +31,7 @@ api.add_resource(RequestLogResource.LAll, '/api/v2/log/all')
 api.add_resource(CMXResource.pull, '/api/v2/cmx/pull')
 #api.add_resource(TestResource.cmx.client_count, '/api/v2/test/cmx/count')
 
-conn = SafeSession(Config.WEB['UID'], 
+conn = SafeRequest(Config.WEB['UID'], 
                    Config.WEB['PWD'], 
                    Config.WEB['VERIFICATION'],
                    Config.CONNECTION['MAX_RETRIES'], 

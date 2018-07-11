@@ -2,10 +2,8 @@ import logging
 import time
 
 import api
-from api.config import Config
-from api.database import store, store_list
-from api.models import Client, RequestLog
-
+from .config import Config
+from .models import Client, RequestLog, LogAndClient
 
 class Util():
     """Functions to work with the CMX framework"""
@@ -22,27 +20,6 @@ class Util():
             _arguments = "?locatedAfterTime={}&locatedBeforeTime={}".format(start, end)
             _url = Config.WEB['URL']+_arguments
             return _url 
-
-    @staticmethod
-    def to_database(log, clients):
-        """Stores the CMX data to the database
-        
-        Arguments:
-            log {RequestLog} -- The log containing the request info
-            clients {Client} -- list of all clients in CMX pull
-        
-        Returns:
-            tuple -- the log and client list now stored in the database
-        """
-
-        # Store the RequestLog to the database
-        _stored_log = store(log)
-        # Update the client log id value from the newly made log's id
-        Client.group.set_request_id(clients, _stored_log.id)
-        # Store the clients to the database
-        _stored_clients = store_list(clients)
-        # Return the clients
-        return (_stored_log, _stored_clients)
 
     class step():
         """Functions pertaining to a request step"""
@@ -120,10 +97,10 @@ class StepIterator():
         _client_data = api.conn.get_json_from(_url)    
         # The ammount of clients in the collected data
         _client_count = len(_client_data)
-        # If the count was 5K, redo the call with half the step size
+        # If the count was 5K, initiate half-step recursive call
         if _client_count == 5000:
             _new_step = Util.step.refactor(Util.step.half, _step)
-            _client_data = self.iterate_by(_new_step)
+            return self.iterate_by(_new_step)
         # Turn the client data returned from the successful call into the ORM client list
         _clients = Client.group.from_data(_client_data)
         # Create a new RequestLog with data
@@ -131,10 +108,10 @@ class StepIterator():
         # Update the last log to be the new one. Any math done on last quantity would be done before this.
         self.last_log = _new_log
         # Store everything to database
-        _new_log, _clients = Util.to_database(_new_log, _clients)
+        _new_log, _clients = LogAndClient.to_database(_new_log, _clients)
 
         return (_new_log, _clients)
-
+  
     def base_iterate(self):
         """Pull data from next base-range interval"""
         return self.iterate_by(self.base_step)

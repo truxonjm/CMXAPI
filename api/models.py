@@ -3,10 +3,15 @@
 import json
 
 from flask_restful import fields
-from sqlalchemy import (Column, BigInteger, Integer, SmallInteger, Float, String, DateTime, Boolean, func)
+from sqlalchemy import (BigInteger, Boolean, Column, DateTime, Float, Integer,
+                        SmallInteger, String, func)
 
 import dateutil.parser
-from api.database import base, session
+
+from .config import Config
+from .generic.database import SafeSession
+
+sess = SafeSession(Config.DB['URI'])
 
 Client_Fields = {
     'id': fields.Integer,
@@ -55,7 +60,31 @@ Log_Fields = {
     'ClientCount': fields.Integer
 }
 
-class RequestLog(base):
+class LogAndClient():
+    @staticmethod
+    def to_database(log, clients):
+        """Stores the CMX data to the database
+        
+        Arguments:
+            log {RequestLog} -- The log containing the request info
+            clients {Client} -- list of all clients in CMX pull
+        
+        Returns:
+            tuple -- the log and client list now stored in the database
+        """
+        try:
+            # Store the RequestLog to the database
+            _stored_log = sess.store(log, True)
+            # Update the client log id value from the newly made log's id
+            Client.group.set_request_id(clients, _stored_log.id)
+            # Store the clients to the database
+            _stored_clients = sess.store_list(clients)
+        except Exception as _x:
+            logging.exception('Storage failed: %s', (_x))
+        finally:
+            return (_stored_log, _stored_clients)
+
+class RequestLog(sess.base):
     """RequestLog -- Holds a log of all requests made to CMX"""
 
     __tablename__ = 'RequestLog'
@@ -92,7 +121,7 @@ class RequestLog(base):
         Returns:
             ResourceLog -- the most recent log by RangeEnd
         """
-        return session.query(RequestLog).order_by(-RequestLog.RangeEnd).first()
+        return sess.session.query(RequestLog).order_by(-RequestLog.RangeEnd).first()
 
     class group():
         """Functions for groups of RequestLogs"""
@@ -103,7 +132,7 @@ class RequestLog(base):
             Returns:
                 list -- all request logs
             """
-            return session.query(RequestLog).order_by(-RequestLog.RangeEnd).all()
+            return sess.session.query(RequestLog).order_by(-RequestLog.RangeEnd).all()
 
         def count():
             """Number of request logs in database
@@ -111,9 +140,9 @@ class RequestLog(base):
             Returns:
                 int -- number of request logs in database
             """
-            return session.query(RequestLog).count()
+            return sess.session.query(RequestLog).count()
         
-class Client(base):
+class Client(sess.base):
     """Client -- Contains data about a particular point from CMX"""
 
     __tablename__ = 'Client'
@@ -155,15 +184,12 @@ class Client(base):
     GuestUser = Column(String(50))
     RequestLogID = Column(Integer)
 
-    def populate_data(self, json_data):
+    def populate_data(self, clientData):
         """Populate the data fields of the Client from json text
 
         Arguments:
             json_data {json} -- json containing data to populate Client
         """
-
-        clientData = json_data
-
         mapInfo = clientData['mapInfo']
         mapHierarchyDetails = mapInfo['mapHierarchyDetails']
         mapCoordinate = clientData['mapCoordinate']
@@ -272,7 +298,7 @@ class Client(base):
             Returns:
                 list -- all clients
             """
-            return session.query(Client).order_by(-Client.SourceTimestamp).all()
+            return api.sess.session.query(Client).order_by(-Client.SourceTimestamp).all()
 
         def count():
             """Number of clients in database
@@ -280,7 +306,7 @@ class Client(base):
             Returns:
                 int -- number of clients in database
             """
-            return session.query(Client).count()
+            return api.sess.session.query(Client).count()
 
         def set_request_id(client_group, log_id):
             """Populates the RequestLogIds in all clients
@@ -290,6 +316,3 @@ class Client(base):
             """
             for client in client_group:
                 client.set_request_id(log_id)
-
-
-    

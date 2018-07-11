@@ -1,6 +1,6 @@
 # CMXAPI
 
-##### URl Directory:
+##### Endpoints:
 
 - '/api/v2/client/latest' --- Returns last stored Client
 - '/api/v2/client/count' ---- Returns the number of Clients stored in the database

@@ -8,10 +8,9 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-#from api.logger import time_execution
+from .logger import time_execution
 
-
-class SafeSession(object):
+class SafeRequest():
     """Wrapper class around a requests session that integrates error handling and effective retries.
 
         Arguments:
@@ -62,7 +61,7 @@ class SafeSession(object):
         _session.mount('https://', _adapter)
         return _session
 
-    #@time_execution
+    @time_execution
     def get_json_from(self, url):
         """Runs a get request to a safe session
         

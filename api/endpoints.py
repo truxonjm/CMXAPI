@@ -4,9 +4,7 @@ import json
 
 from flask_restful import Resource, marshal_with
 
-import api
-from api.models import Client, Client_Fields, Log_Fields, RequestLog
-from api.database import session
+from .models import Client, Client_Fields, Log_Fields, RequestLog
 
 class Util():
     @marshal_with(Log_Fields)

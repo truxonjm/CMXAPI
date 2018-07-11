@@ -1,9 +1,11 @@
-"""Threaded Process that stores the Barge Location in the database in a specified time interval"""
+"""Threaded Process that runs a function continuously separated a specified time interval"""
 
 import os
 import threading
 import logging
 from time import sleep
+
+from .logger import time_execution
 
 class Scheduler(object):
     """Thread to regularly run a background function"""
@@ -31,7 +33,11 @@ class Scheduler(object):
         """Waits, then runs function"""
         while True:
             self.wait(self.interval)
-            self.func()
+            self.do_job()
+
+    @time_execution
+    def do_job(self):
+        self.func()
             
     def wait(self, interval):
         """Sleeps the thread for the interval of time given
